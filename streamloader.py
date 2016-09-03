@@ -100,6 +100,5 @@ app = StreamLoader()
 for closeShip in itertools.ifilter(lambda ship: ship[1]["sog"] > -1, app.processEvents()):
     print ""
     print("Fond close ship. name: {0}  uid: {1}".format(closeShip[5]['name'],closeShip[5]['userid']))
-    print closeShip
     vc = VideoCapture()
     vc.captureVideo(closeShip[1]['userid'])
