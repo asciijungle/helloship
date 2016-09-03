@@ -4,6 +4,7 @@ import json
 import numpy as np
 import sys
 from printf import printf
+from colors import bcolors
 
 class StreamLoader():
     def __init__(self):
@@ -26,7 +27,7 @@ class StreamLoader():
             line = infile.readline()
             if not line: break
             event = json.loads(line)
-            printf(str(event['msgid']))
+            self.printEventID(event)
             sys.stdout.flush()
             yield event
 
@@ -60,9 +61,13 @@ class StreamLoader():
             else:
                 self.knownShips[userid].update({event['msgid']: event})
 
-            completeShip = self.checkForCompleteData(userid)
-            if completeShip is not None:
-                print completeShip
+            if 1 in self.knownShips[userid] and 5 in self.knownShips[userid]:
+               yield self.knownShips[userid]
+
+
+            #completeShip = self.checkForCompleteData(userid)
+            #if completeShip is not None:
+            #    print completeShip
 
     def getVTUrl(self,event):
         if event['imo'] is not 0:
@@ -70,11 +75,20 @@ class StreamLoader():
 	    return image_url
         else:
             return None
-            
 
-    def checkForCompleteData(self,userid):
-        if 1 in self.knownShips[userid] and 5 in self.knownShips[userid]:
-               return self.knownShips[userid]
+    def printEventID(self,event):
+        msgid = str(event['msgid'])
+        color = None
+        if msgid is "1":
+            color = bcolors.HEADER
+        if msgid is "5":
+            color = bcolors.OKGREEN
+        if msgid is "3":
+            color = bcolors.OKBLUE
+        printf(color+str(msgid)+bcolors.ENDC)
+
+
+    #def checkForCompleteData(self,userid):
 
 
 app = StreamLoader()
