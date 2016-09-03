@@ -3,8 +3,11 @@ import socket
 import json
 import numpy as np
 import sys
+import itertools
+from subprocess import call
 from printf import printf
 from colors import bcolors
+from video import VideoCapture
 
 class StreamLoader():
     def __init__(self):
@@ -94,6 +97,9 @@ class StreamLoader():
         printf(color+str(msgid)+bcolors.ENDC)
 
 app = StreamLoader()
-for closeShip in app.processEvents():
+for closeShip in itertools.ifilter(lambda ship: ship[1]["sog"] > -1, app.processEvents()):
     print ""
     print("Fond close ship. name: {0}  uid: {1}".format(closeShip[5]['name'],closeShip[5]['userid']))
+    print closeShip
+    vc = VideoCapture()
+    vc.captureVideo(closeShip[1]['userid'])
