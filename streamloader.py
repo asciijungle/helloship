@@ -2,13 +2,16 @@
 import socket
 import json
 import numpy as np
+import sys
+from printf import printf
 
 class StreamLoader():
     def __init__(self):
-	self.stream = self.printStream()
+        self.stream = self.getStream()
+        self.knownShips = {}
 	pass
 
-    def printStream(self):
+    def getStream(self):
         print "running printStream()"
         #create an INET, STREAMing socket
         sock = socket.socket(
@@ -22,18 +25,10 @@ class StreamLoader():
         while True:
             line = infile.readline()
             if not line: break
-            yield json.loads(line)
-
-    def processEvents(self):
-	print self.stream
-	for event in self.stream:
-	    #print(event)
-	    if event['msgid'] == 5:
-                print(event['name'], event['userid'], event['imo'])
-		image_url = ['http://www.vesseltracker.com/en/Ships/'+ str(event['imo']) +'.html']
-		print image_url
-	#	print(result['userid'], result['pos'])
-	#	print result.keys() 
+            event = json.loads(line)
+            printf(str(event['msgid']))
+            sys.stdout.flush()
+            yield event
 
     def saveEvents(self):
 	with open('streamdata.json', 'a+') as f:
@@ -51,12 +46,43 @@ class StreamLoader():
 		else:
 			is_near = False
 
+    def processEvents(self):
+        for event in self.stream:
+
+            userid = event['userid']
+
+            if event['msgid'] == 5:
+                url = self.getVTUrl(event)
+                event['url'] = url
+            
+            if userid not in self.knownShips.keys():
+                self.knownShips[userid] =  {event['msgid']: event}
+            else:
+                self.knownShips[userid].update({event['msgid']: event})
+
+            completeShip = self.checkForCompleteData(userid)
+            if completeShip is not None:
+                print completeShip
+
+    def getVTUrl(self,event):
+        if event['imo'] is not 0:
+            image_url = ['http://www.vesseltracker.com/en/Ships/'+ str(event['imo']) +'.html']
+	    return image_url
+        else:
+            return None
+            
+
+    def checkForCompleteData(self,userid):
+        if 1 in self.knownShips[userid] and 5 in self.knownShips[userid]:
+               return self.knownShips[userid]
 
 
 app = StreamLoader()
-#app.processEvents(app.printStream())
-app.processEvents()
-#app.isnear()
-
-
+for closeShip in app.processEvents():
+    print "==================="
+    print "FOUND CLOSE SHIP!!!"
+    print "==================="
+    print closeShip
+    print "==================="
+    print ""
 
