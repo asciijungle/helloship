@@ -4,7 +4,7 @@ import json
 
 class StreamLoader():
 
-    def printStream(self):
+    def getStream(self):
         print "running printStream()"
         #create an INET, STREAMing socket
         sock = socket.socket(
@@ -18,10 +18,15 @@ class StreamLoader():
         while True:
             line = infile.readline()
             if not line: break
-            result = json.loads(line)
-            if result.msgid == 5:
-                print result
+            yield json.loads(line)
+
+    def processEvents(self,stream):
+        print stream
+        for event in stream:
+            print "-----"
+            print event
+            print ""
 
 app = StreamLoader()
-app.printStream()
+app.processEvents(app.getStream())
 
