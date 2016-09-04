@@ -1,6 +1,5 @@
 from subprocess import call
 import os
-import glob
 import datetime
 
 class VideoCapture():
@@ -21,21 +20,13 @@ class VideoCapture():
                 return self.recordVideo(userid,currentTime)
             else:
                 print "not capturing video. timestamp: {0} current time: {1}".format(timestamps[userid],currentTime)
+                return None
         else:
             print("no video for userid: {0}. thus capturing video".format(userid))
             return self.recordVideo(userid,currentTime)
 
     def recordVideo(self,userid,timestamp):
         filename =  str(userid)+"-"+str(timestamp)
-        call(["mencoder", "tv://", "-tv", "driver=v4l2:width=640:height=480:device=/dev/video1", "-nosound", "-ovc", "lavc", "-o", filename+".avi", "-endpos", "00:00:10"])
-        self.generateGif(filename)
-
-
-    def generateGif(self, fileName):
-        print ("generating gif of {0}".format(fileName))
-        call(["ffmpeg", "-ss", "1", "-i", fileName + ".avi", "-r", "5", "frames/frame-%03d.jpg"])
-        call(["convert", "-delay", "5", "-loop", "0", "-layers", "Optimize", "-fuzz", "3%", "frames/*.jpg", fileName + ".gif"])
-        files = glob.glob('./frames/*')
-        for f in files:
-            os.remove(f)
-        return fileName + ".gif"
+        call(["mencoder", "tv://", "-tv", "driver=v4l2:width=640:height=480:device=/dev/video1", "-nosound", "-ovc", "lavc", "-o", filename+".avi", "-endpos", "00:00:10"]);
+        return filename
+    

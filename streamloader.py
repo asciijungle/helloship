@@ -8,6 +8,8 @@ from subprocess import call
 from printf import printf
 from colors import bcolors
 from video import VideoCapture
+from gif import GifGenerator
+from multiprocessing import Process
 
 class StreamLoader():
     def __init__(self):
@@ -96,9 +98,17 @@ class StreamLoader():
             color = bcolors.OKBLUE
         printf(color+str(msgid)+bcolors.ENDC)
 
+    def postProcess(self, ship, fileName):
+        gg = GifGenerator()
+        gg.generateGif(fileName)
+        print "done postprocessing"
+
 app = StreamLoader()
 for closeShip in itertools.ifilter(lambda ship: ship[1]["sog"] > -1, app.processEvents()):
     print ""
     print("Fond close ship. name: {0}  uid: {1}".format(closeShip[5]['name'],closeShip[5]['userid']))
     vc = VideoCapture()
-    vc.captureVideo(closeShip[1]['userid'])
+    fileName = vc.captureVideo(closeShip[1]['userid'])
+    if fileName is not None:
+        p = Process(target=app.postProcess, args=(closeShip, fileName))
+        p.start()
