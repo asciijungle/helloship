@@ -21,5 +21,3 @@ def twitterpush(imagefile, name):
     r = api.request('statuses/update_with_media', {'status':'Wunderbar! {0} schwimmt gerade hier vorbei.'.format(name)}, {'media[]':data})
     print(r.status_code)
     return
-
-twitterpush('255805699.jpg', 'Foobar')
