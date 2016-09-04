@@ -7,6 +7,7 @@ from video import VideoCapture
 from gif import GifGenerator
 from multiprocessing import Process
 from streamloader import StreamLoader
+from twitter_streaming import twitterpush
 #from shipimage import ImageFetcher
 #from twitter_streaming import twitterpush
 
@@ -42,6 +43,7 @@ class HelloShip():
     def postProcess(self, ship, fileName):
         gg = GifGenerator()
         gg.generateGif(fileName)
+        twitterpush(fileName + ".gif", ship[5]['name'])
         print "done postprocessing"
     
     def isnear(self, userid):
